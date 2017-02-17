@@ -201,6 +201,10 @@ jobs:
             - bats-centos
             - bats-ubuntu
         - get: bosh-linux-stemcell-builder
+        - get: bosh-src
+          passed:
+            - bats-centos
+            - bats-ubuntu
       - task: copy-artifacts
         file: bosh-linux-stemcell-builder/ci/tasks/publish.yml
         params:
