@@ -16,3 +16,4 @@ RSpec::Matchers.define(:be_valid_json_file) do
     "Expected '#{@content}' to be valid JSON. Parser error: #{@error.inspect}"
   end
 end
+

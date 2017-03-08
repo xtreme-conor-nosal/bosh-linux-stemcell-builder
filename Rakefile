@@ -118,7 +118,7 @@ namespace :stemcell do
       require 'bosh/stemcell/stemcell_packager'
       require 'bosh/stemcell/stemcell_builder'
 
-      args.with_defaults(build_number: ENV['CANDIDATE_BUILD_NUMBER'])
+      args.with_defaults(build_number: ENV.fetch('CANDIDATE_BUILD_NUMBER', '0000'))
 
       definition = Bosh::Stemcell::Definition.for(args.infrastructure_name, args.hypervisor_name, args.operating_system_name, args.operating_system_version, args.agent_name, false)
       environment = Bosh::Stemcell::BuildEnvironment.new(

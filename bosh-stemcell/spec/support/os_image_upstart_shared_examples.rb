@@ -24,7 +24,7 @@ shared_examples_for 'an upstart-based OS image' do
       it { should be_enabled.with_level(2) }
       it { should be_enabled.with_level(3) }
       it { should be_enabled.with_level(4) }
-      it { should be_enabled.with_level(5) }
+      it { should be_enabled.with_level(1000) }
     end
   end
 
