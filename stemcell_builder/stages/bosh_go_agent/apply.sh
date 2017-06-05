@@ -24,7 +24,7 @@ ln -s /etc/sv/monit /etc/service/monit
 # Alerts for monit config
 cp -a $assets_dir/alerts.monitrc $chroot/var/vcap/monit/alerts.monitrc
 
-cd $assets_dir
+pushd $assets_dir
 # if is_ppc64le; then
 #   curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-agent-binaries/bosh-agent-0.0.9-linux-ppc64le?versionId=nsp4Mhgp.4D8RRrKa1xvRD.alPh1eboL"
 #   echo "416fe9bb129027d1f2bbe0ec3333021f2733decf912e13fee6ec9dff895473f0  bosh-agent" | shasum -a 256 -c -
@@ -32,7 +32,10 @@ cd $assets_dir
 #   curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-agent-binaries/bosh-agent-0.0.8-linux-amd64?versionId=cnd7fl_5s85XxeTJjkfezDit1PDCiHKV"
 #   echo "92a48eba8857c4ee732ced856a16654468bb96a7a1192b056d2175e8f7109334  bosh-agent" | shasum -a 256 -c -
 # fi
-mv bosh-agent $chroot/var/vcap/bosh/bin/
+  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-umask-agent-binaries/bosh-agent-umask-linux-amd64?versionId=uXbKv1Lg_kl4SLfwZ7fUypnX1eyADdUw"
+  echo "0cef4369244cdfecc0e2dd809d9f33af8610be85a566a14e87745de96a332f08  bosh-agent" | shasum -a 256 -c -
+  mv bosh-agent $chroot/var/vcap/bosh/bin/
+popd
 
 cp $assets_dir/bosh-agent-rc $chroot/var/vcap/bosh/bin/bosh-agent-rc
 cp $assets_dir/mbus/agent.{cert,key} $chroot/var/vcap/bosh/
