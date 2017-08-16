@@ -1,0 +1,3 @@
+cat <<EOF >~/version/number
+0.0
+EOF
