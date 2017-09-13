@@ -11,6 +11,10 @@ ADD ${OVF_TOOL_INSTALLER} /tmp/ovftool_installer.bundle
 ADD scripts/install-ovf.sh /tmp/install-ovf.sh
 RUN /tmp/install-ovf.sh && rm /tmp/install-ovf.sh
 
+RUN wget -O /usr/bin/meta4 https://github.com/dpb587/metalink/releases/download/v0.1.0/meta4-0.1.0-linux-amd64 \
+  && echo "235bc60706793977446529830c2cb319e6aaf2da  /usr/bin/meta4" | shasum -c \
+  && chmod +x /usr/bin/meta4
+
 # this is unshare from ubuntu 15.10 so we can use the newer -fp flags
 ADD scripts/unshare /usr/bin/unshare
 
