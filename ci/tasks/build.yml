@@ -10,9 +10,12 @@ inputs:
   - name: bosh-src
   - name: bosh-linux-stemcell-builder
   - name: version
+  - name: stemcells-index
 
 outputs:
   - name: stemcell
+  - name: stemcells-index
+    path: stemcells-index-output
 
 run:
   path: bosh-linux-stemcell-builder/ci/tasks/build.sh
@@ -22,4 +25,3 @@ params:
   HYPERVISOR:   replace-me
   OS_NAME:      replace-me
   OS_VERSION:   replace-me
-  BOSHIO_TOKEN: ""
