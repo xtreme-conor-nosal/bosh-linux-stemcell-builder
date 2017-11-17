@@ -1,6 +1,5 @@
 require 'yaml'
 require 'rake/file_utils_ext'
-require 'bosh/stemcell/aws/region'
 
 module Bosh::Stemcell
   class Archive
@@ -8,6 +7,7 @@ module Bosh::Stemcell
 
     def initialize(path = '')
       @path = path
+      @shell = Bosh::Core::Shell.new
       validate_stemcell
     end
 

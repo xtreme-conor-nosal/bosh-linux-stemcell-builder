@@ -26,13 +26,11 @@ namespace :stemcell do
         settings_file: environment.settings_path,
         work_path: environment.work_path,
       )
-      archive_handler = Bosh::Stemcell::ArchiveHandler.new
 
       builder = Bosh::Stemcell::OsImageBuilder.new(
         environment: environment,
         collection: collection,
         runner: runner,
-        archive_handler: archive_handler,
       )
       builder.build(args.os_image_path)
 

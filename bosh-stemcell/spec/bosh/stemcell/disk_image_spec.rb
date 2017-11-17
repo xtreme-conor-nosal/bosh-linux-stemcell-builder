@@ -154,12 +154,13 @@ module Bosh::Stemcell
     end
 
     describe '#unmount' do
-      before do
-        allow(disk_image).to receive(:device).and_return('/dev/loop0') # pretend we've mounted
-      end
-
       it 'unmounts the loop device and then unmaps the file' do
         expect(shell).to receive(:run).with('sudo umount /fake/mnt', output_command: false).ordered
+
+        expect(shell).to receive(:run).with(
+          'sudo losetup --show --find /path/to/FAKE_IMAGE',
+          output_command: false
+        ).ordered.and_return('/dev/loop0') # pretend we've mounted
         expect(shell).to receive(:run).with('sudo kpartx -dv /dev/loop0', output_command: false).ordered
         expect(shell).to receive(:run).with('sudo losetup -v -d /dev/loop0', output_command: false).ordered
 
@@ -168,6 +169,11 @@ module Bosh::Stemcell
 
       it 'unmaps the file even if unmounting the device fails' do
         expect(shell).to receive(:run).with('sudo umount /fake/mnt', output_command: false).and_raise
+
+        expect(shell).to receive(:run).with(
+          'sudo losetup --show --find /path/to/FAKE_IMAGE',
+          output_command: false
+        ).ordered.and_return('/dev/loop0') # pretend we've mounted
         expect(shell).to receive(:run).with('sudo kpartx -dv /dev/loop0', output_command: false).ordered
         expect(shell).to receive(:run).with('sudo losetup -v -d /dev/loop0', output_command: false).ordered
 

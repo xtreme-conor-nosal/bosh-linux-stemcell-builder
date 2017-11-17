@@ -97,10 +97,10 @@ module Bosh::Stemcell
       end
 
       it 'cleans and prepares the environment' do
-        image_path = File.join(root_dir, 'work/work/mnt/tmp/grub/fake-root-disk-image.raw')
+        image_path = File.join(root_dir, 'work/mnt/tmp/grub/fake-root-disk-image.raw')
         unmount_img_command = "sudo umount #{image_path} 2> /dev/null"
         expect(shell).to receive(:run).with(unmount_img_command, run_options).ordered
-        unmount_dir_command = "sudo umount #{File.join(root_dir, 'work/work/mnt')} 2> /dev/null"
+        unmount_dir_command = "sudo umount #{File.join(root_dir, 'work/mnt')} 2> /dev/null"
         expect(shell).to receive(:run).with(unmount_dir_command, run_options).ordered
         expect(shell).to receive(:run).with("sudo rm -rf #{root_dir}", run_options).ordered
 
@@ -131,7 +131,7 @@ module Bosh::Stemcell
       it 'creates the stemcell path' do
         expect {
           subject.prepare_build
-        }.to change { Dir.exists?(File.join(root_dir, 'work/work/stemcell')) }.from(false).to(true)
+        }.to change { Dir.exists?(File.join(root_dir, 'work/stemcell')) }.from(false).to(true)
       end
 
       context 'when resume_from is set' do

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'bosh/stemcell/archive_handler'
 require 'bosh/stemcell/build_environment'
 require 'bosh/stemcell/stage_collection'
 require 'bosh/stemcell/stage_runner'
@@ -11,16 +10,19 @@ describe Bosh::Stemcell::OsImageBuilder do
       environment: environment,
       collection: collection,
       runner: runner,
-      archive_handler: archive_handler,
     )
   end
 
   let(:environment) { instance_double('Bosh::Stemcell::BuildEnvironment', prepare_build: nil, chroot_dir: '/chroot') }
   let(:collection) { instance_double('Bosh::Stemcell::StageCollection', operating_system_stages: nil) }
   let(:runner) { instance_double('Bosh::Stemcell::StageRunner', configure_and_apply: nil) }
-  let(:archive_handler) { instance_double('Bosh::Stemcell::ArchiveHandler', compress: nil) }
+  let(:shell) { instance_double('Bosh::Core::Shell', run: nil) }
 
   describe '#build' do
+    before do
+      allow(Bosh::Core::Shell).to receive(:new).and_return(shell)
+    end
+
     it 'prepares the build environment' do
       expect(environment).to receive(:prepare_build)
       builder.build('/some/os_image_path.tgz')
@@ -34,7 +36,7 @@ describe Bosh::Stemcell::OsImageBuilder do
     end
 
     it 'tars up the chroot dir' do
-      expect(archive_handler).to receive(:compress).with('/chroot', '/some/os_image_path.tgz')
+      expect(shell).to receive(:run).with("sudo tar -cz -f /chroot -C /some/os_image_path.tgz .")
 
       builder.build('/some/os_image_path.tgz')
     end
