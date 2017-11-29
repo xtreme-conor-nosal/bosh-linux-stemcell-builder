@@ -26,11 +26,11 @@ cp -a $assets_dir/alerts.monitrc $chroot/var/vcap/monit/alerts.monitrc
 
 cd $assets_dir
 if is_ppc64le; then
-  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-stemcell3445-align-partition/bosh-agent/bosh-agent-2.8.4-linux-ppc64le?versionId=512NYW3P3uMFrxkXyf5yklikxqcJSZgg"
+  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-stemcell3445-align-partition/bosh-agent/bosh-agent-2.8.4-linux-ppc64le"
   echo "63f927c3a1a4fdd53b89d95dfb0317723d6ae0210f1aec7125365eae88af7e4a  bosh-agent" | shasum -a 256 -c -
 else
-  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-stemcell3445-align-partition/bosh-agent/bosh-agent-2.8.4-linux-amd64?versionId=vUdKJms66IWwb9y0zDUtGQ7_MkfNB3wH"
-  echo "47c14757f980210b7201dc619852acced644bd0610d6d7456a262822da821b14  bosh-agent" | shasum -a 256 -c -
+  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-stemcell3445-align-partition/bosh-agent/bosh-agent-2.8.4-linux-amd64"
+  echo "dbfe866b3605fb7fdae0a0f54f826c2282e10f644683f956a25c266b24292b6d  bosh-agent" | shasum -a 256 -c -
 fi
 mv bosh-agent $chroot/var/vcap/bosh/bin/
 
