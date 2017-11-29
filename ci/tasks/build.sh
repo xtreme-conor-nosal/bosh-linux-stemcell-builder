@@ -19,8 +19,6 @@ check_param OS_VERSION
 export TASK_DIR=$PWD
 export CANDIDATE_BUILD_NUMBER=$( cat version/number | sed 's/\.0$//;s/\.0$//' )
 
-git clone stemcells-index stemcells-index-output
-
 # This is copied from https://github.com/concourse/concourse/blob/3c070db8231294e4fd51b5e5c95700c7c8519a27/jobs/baggageclaim/templates/baggageclaim_ctl.erb#L23-L54
 # helps the /dev/mapper/control issue and lets us actually do scary things with the /dev mounts
 # This allows us to create device maps from partition tables in image_create/apply.sh
@@ -75,7 +73,6 @@ SUDO
 #
 
 stemcell_name="bosh-stemcell-$CANDIDATE_BUILD_NUMBER-$IAAS-$HYPERVISOR-$OS_NAME-$OS_VERSION-go_agent"
-meta4_path=$TASK_DIR/stemcells-index-output/dev/$OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER/$IAAS-$HYPERVISOR-go_agent.meta4
 
 mkdir -p "$( dirname "$meta4_path" )"
 meta4 create --metalink="$meta4_path"
@@ -97,10 +94,3 @@ meta4 file-set-url --metalink="$meta4_path" --file="${stemcell_filename}" "https
 
 # just in case we need to debug/verify the live results
 cat "$meta4_path"
-
-cd stemcells-index-output
-
-git add -A
-git config --global user.email "ci@localhost"
-git config --global user.name "CI Bot"
-git commit -m "dev: $OS_NAME-$OS_VERSION/$CANDIDATE_BUILD_NUMBER ($IAAS-$HYPERVISOR)"
