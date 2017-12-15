@@ -5,7 +5,6 @@ namespace :stemcell do
   desc 'Build a base OS image for use in stemcells'
   task :build_os_image, [:operating_system_name, :operating_system_version, :os_image_path] do |_, args|
     begin
-      require 'bosh/stemcell/archive_handler'
       require 'bosh/stemcell/build_environment'
       require 'bosh/stemcell/definition'
       require 'bosh/stemcell/os_image_builder'

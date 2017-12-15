@@ -1,5 +1,6 @@
 require 'rspec/core/formatters/console_codes'
 require 'shellout_types/chroot'
+require 'bosh/stemcell/shell'
 require_relative 'shellout_type_assertions'
 
 RSpec.configure do |config|
@@ -9,11 +10,11 @@ RSpec.configure do |config|
     config.add_setting(:os_image_dir, default: @os_image_dir)
 
     config.before(:all) do
-      Bosh::Core::Shell.new.run("sudo tar xf #{ENV['OS_IMAGE']} -C #{config.os_image_dir}")
+      Bosh::Stemcell::Shell.new.run("sudo tar xf #{ENV['OS_IMAGE']} -C #{config.os_image_dir}")
     end
 
     config.after(:all) do
-      Bosh::Core::Shell.new.run("sudo rm -rf #{config.os_image_dir}")
+      Bosh::Stemcell::Shell.new.run("sudo rm -rf #{config.os_image_dir}")
     end
   else
     # when running stemcell testings, we need also run the os image testings again

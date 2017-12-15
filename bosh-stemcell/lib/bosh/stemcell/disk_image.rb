@@ -1,4 +1,3 @@
-require 'bosh/core/shell'
 require 'bosh/stemcell/arch'
 require 'tmpdir'
 
@@ -11,7 +10,7 @@ module Bosh::Stemcell
       @image_file_path   = options.fetch(:image_file_path)
       @image_mount_point = options.fetch(:image_mount_point, Dir.mktmpdir)
       @verbose           = options.fetch(:verbose, false)
-      @shell             = Bosh::Core::Shell.new
+      @shell             = Bosh::Stemcell::Shell.new
     end
 
     def mount

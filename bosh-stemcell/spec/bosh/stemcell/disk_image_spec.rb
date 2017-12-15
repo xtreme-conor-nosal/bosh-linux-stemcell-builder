@@ -3,7 +3,7 @@ require 'bosh/stemcell/disk_image'
 
 module Bosh::Stemcell
   describe DiskImage do
-    let(:shell) { instance_double('Bosh::Core::Shell', run: nil) }
+    let(:shell) { instance_double('Bosh::Stemcell::Shell', run: nil) }
 
     if Bosh::Stemcell::Arch.ppc64le?
       # power8 guest images have a p1: PReP partition and p2: file system, we need loopXp2 here
@@ -21,7 +21,7 @@ module Bosh::Stemcell
     subject(:disk_image) { DiskImage.new(options) }
 
     before do
-      allow(Bosh::Core::Shell).to receive(:new).and_return(shell)
+      allow(Bosh::Stemcell::Shell).to receive(:new).and_return(shell)
     end
 
     describe '#initialize' do

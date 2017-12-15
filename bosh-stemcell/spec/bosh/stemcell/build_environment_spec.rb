@@ -61,11 +61,11 @@ module Bosh::Stemcell
                       name: 'fake-operating-system-name')
     end
 
-    let(:shell) { instance_double(Bosh::Core::Shell) }
+    let(:shell) { instance_double(Bosh::Stemcell::Shell) }
     let(:run_options) { { ignore_failures: true } }
 
     before do
-      allow(Bosh::Core::Shell).to receive(:new).and_return(shell)
+      allow(Bosh::Stemcell::Shell).to receive(:new).and_return(shell)
       allow(BuilderOptions).to receive(:new).and_return(stemcell_builder_options)
       stub_const('Bosh::Stemcell::BuildEnvironment::STEMCELL_BUILDER_SOURCE_DIR', stemcell_builder_source_dir)
       stub_const('Bosh::Stemcell::BuildEnvironment::STEMCELL_SPECS_DIR', stemcell_specs_dir)

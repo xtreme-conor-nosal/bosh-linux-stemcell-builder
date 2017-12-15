@@ -7,7 +7,7 @@ module Bosh::Stemcell
 
     def initialize(path = '')
       @path = path
-      @shell = Bosh::Core::Shell.new
+      @shell = Bosh::Stemcell::Shell.new
       validate_stemcell
     end
 

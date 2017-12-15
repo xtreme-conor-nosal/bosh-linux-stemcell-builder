@@ -6,7 +6,7 @@ module Bosh::Stemcell
   describe StageRunner do
     include FakeFS::SpecHelpers
 
-    let(:shell) { instance_double('Bosh::Core::Shell', run: nil) }
+    let(:shell) { instance_double('Bosh::Stemcell::Shell', run: nil) }
 
     let(:stages) { [:stage_0, :stage_1] }
     let(:build_path) { '/fake/path/to/build_dir' }
@@ -22,7 +22,7 @@ module Bosh::Stemcell
     end
 
     before do
-      allow(Bosh::Core::Shell).to receive(:new).and_return(shell)
+      allow(Bosh::Stemcell::Shell).to receive(:new).and_return(shell)
 
       allow(stage_runner).to receive(:puts)
     end

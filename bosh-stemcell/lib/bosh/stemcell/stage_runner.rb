@@ -1,5 +1,3 @@
-require 'bosh/core/shell'
-
 module Bosh::Stemcell
   class StageRunner
 
@@ -72,7 +70,7 @@ module Bosh::Stemcell
     end
 
     def run_sudo_with_command_env(command)
-      shell = Bosh::Core::Shell.new
+      shell = Bosh::Stemcell::Shell.new
 
       shell.run("sudo #{@command_env} #{command} 2>&1", output_command: true)
     end
