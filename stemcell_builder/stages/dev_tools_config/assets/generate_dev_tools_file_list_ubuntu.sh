@@ -19,5 +19,5 @@ for package_name in \
   patch \
   po-debconf \
 ; do
-  (for i in `dpkg-query -W -f '${Package} ' ${package_name}*`; do dpkg -L $i; done) | xargs file | grep -Ev ':\s+directory\s+$' | awk -F ':' '{ print $1 }'
+  (for i in `dpkg-query -W -f '${Package} ' ${package_name}*`; do dpkg -L $i; done) | xargs file | grep -Ev ':\s+directory\s*$' | awk -F ':' '{ print $1 }'
 done
