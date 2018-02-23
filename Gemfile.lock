@@ -13,7 +13,6 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    builder (3.2.2)
     diff-lcs (1.2.5)
     fakefs (0.6.7)
     little-plugger (1.1.4)
@@ -57,8 +56,4 @@ DEPENDENCIES
   timecop
 
 BUNDLED WITH
-<<<<<<< HEAD
    1.16.1
-=======
-   1.15.4
->>>>>>> Remove usage of bosh-core shell
