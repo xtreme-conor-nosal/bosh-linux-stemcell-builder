@@ -46,47 +46,36 @@ groups:
 shared:
   - &prepare-director
     task: prepare-director
-    tags: [vsphere-v5.1]
-    file: pipelines/vsphere/tasks/prepare-director.yml
+    tags: [vsphere-v6.5]
+    file: pipelines/shared/tasks/prepare-director.yml
     params: &prepare-director-params
-      BOSH_CLIENT:                          {{stemcell-test-director-username}}
-      BOSH_CLIENT_SECRET:                   {{stemcell-test-director-password}}
-      BOSH_VSPHERE_VCENTER:                 {{vcenter-ip}}
-      BOSH_VSPHERE_VCENTER_USER:            {{vcenter-user}}
-      BOSH_VSPHERE_VCENTER_PASSWORD:        {{vcenter-password}}
-      BOSH_VSPHERE_VERSION:                 {{vsphere-version}}
-      BOSH_VSPHERE_VCENTER_DC:              {{vcenter-dc}}
-      BOSH_VSPHERE_VCENTER_CLUSTER:         {{vcenter-cluster}}
-      BOSH_VSPHERE_VCENTER_DATASTORE:       {{vcenter-datastore}}
-      BOSH_VSPHERE_VCENTER_VLAN:            {{vcenter-vlan}}
-      BOSH_VSPHERE_VCENTER_VM_FOLDER:       {{vcenter-vm-folder}}
-      BOSH_VSPHERE_VCENTER_TEMPLATE_FOLDER: {{vcenter-template-folder}}
-      BOSH_VSPHERE_VCENTER_DISK_PATH:       {{vcenter-disk-path}}
-      SSLIP_IO_KEY:                         {{sslip_io_key}}
-
+      INFRASTRUCTURE:     vsphere
+      DIRECTOR_VARS_FILE: {{vsphere_director_vars_file}}
+      OPTIONAL_OPS_FILE:  |
+        -o bosh-deployment/vsphere/resource-pool.yml
+        -o pipelines/shared/assets/ops/remove-hm.yml
+        -o pipelines/shared/assets/ops/remove-provider-cert.yml
 
   - &deploy-director
     task: deploy-director
-    tags: [vsphere-v5.1]
+    tags: [vsphere-v6.5]
     file: pipelines/shared/tasks/deploy-director.yml
-
-  - &prepare-bats
-    task: prepare-bats
-    tags: [vsphere-v5.1]
-    file: pipelines/vsphere/tasks/prepare-bats.yml
-    params: &prepare-bats-params
-      BAT_VCAP_PASSWORD:      {{bat-vcap-password}}
-      BOSH_CLIENT:            {{stemcell-test-director-username}}
-      BOSH_CLIENT_SECRET:     {{stemcell-test-director-password}}
+    params:
+      NETWORK_NAME: default
 
   - &run-bats
     task: run-bats
-    tags: [vsphere-v5.1]
+    tags: [vsphere-v6.5]
     file: pipelines/shared/tasks/run-bats.yml
+    params: &run-bats-params
+      INFRASTRUCTURE:     vsphere
+      BAT_INFRASTRUCTURE: vsphere
+      BAT_NETWORKING:     manual
+      BAT_RSPEC_FLAGS:    "--tag ~vip_networking --tag ~dynamic_networking --tag ~root_partition --tag ~raw_ephemeral_storage"
 
   - &teardown
     task: teardown
-    tags: [vsphere-v5.1]
+    tags: [vsphere-v6.5]
     file: pipelines/shared/tasks/teardown.yml
     params:
       DEPLOYMENT_NAME: certification
@@ -126,41 +115,42 @@ jobs:
         - get: vsphere-esxi-ubuntu-trusty
           passed: [build-vsphere-esxi-ubuntu-trusty]
           tags:
-          - vsphere-v5.1
+          - vsphere-v6.5
       - put: environment
         params:
           acquire: true
 
       - do:
         - task: deploy-director
-          tags: [vsphere-v5.1]
+          tags: [vsphere-v6.5]
           file: bosh-linux-stemcell-builder/ci/tasks/deploy-director.yml
           input_mapping:
             stemcell: vsphere-esxi-ubuntu-trusty
           params:
-            BOSH_internal_ip:                          {{stemcell-test-director-address}}
-            BOSH_internal_cidr:            {{bosh-director-vcenter-cidr}}
-            BOSH_internal_gw:         {{bosh-director-vcenter-gateway}}
-            BOSH_vcenter_ip:                 {{vcenter-ip}}
-            BOSH_vcenter_user:            {{vcenter-user}}
-            BOSH_vcenter_password:        {{vcenter-password}}
-            BOSH_vcenter_dc:              {{vcenter-dc}}
-            BOSH_vcenter_cluster:         {{vcenter-cluster}}
-            BOSH_vcenter_ds:       {{vcenter-datastore}}
-            BOSH_network_name:            {{vcenter-vlan}}
+            BOSH_internal_ip:       {{stemcell-test-director-address}}
+            BOSH_internal_cidr:     {{bosh-director-vcenter-cidr}}
+            BOSH_internal_gw:       {{bosh-director-vcenter-gateway}}
+            BOSH_vcenter_ip:        {{vcenter-ip}}
+            BOSH_vcenter_user:      {{vcenter-user}}
+            BOSH_vcenter_password:  {{vcenter-password}}
+            BOSH_vcenter_dc:        {{vcenter-dc}}
+            BOSH_vcenter_cluster:   {{vcenter-cluster}}
+            BOSH_vcenter_ds:        {{vcenter-datastore}}
+            BOSH_network_name:      {{vcenter-vlan}}
             BOSH_vcenter_vms:       {{vcenter-vm-folder}}
             BOSH_vcenter_templates: {{vcenter-template-folder}}
-            BOSH_vcenter_disks:       {{vcenter-disk-path}}
+            BOSH_vcenter_disks:     {{vcenter-disk-path}}
+            BOSH_vcenter_rp:        {{vcenter-rp}}
 
         - task: test-stemcell
-          tags: [vsphere-v5.1]
+          tags: [vsphere-v6.5]
           file: bosh-linux-stemcell-builder/ci/tasks/test-stemcell.yml
           input_mapping:
             stemcell: vsphere-esxi-ubuntu-trusty
         ensure:
           do:
           - task: teardown
-            tags: [vsphere-v5.1]
+            tags: [vsphere-v6.5]
             file: bosh-linux-stemcell-builder/ci/tasks/teardown.yml
           - put: environment
             params:
@@ -434,7 +424,7 @@ jobs:
         - get: stemcell
           trigger: true
           tags:
-          - vsphere-v5.1
+          - vsphere-v6.5
           resource: vsphere-esxi-ubuntu-trusty
           passed:
             - build-vsphere-esxi-ubuntu-trusty
@@ -442,6 +432,7 @@ jobs:
         - get: bosh-cli
         - get: bats
         - get: bosh-src
+        - get: bosh-deployment
         - get: bosh-linux-stemcell-builder
           passed:
             - build-warden-boshlite-ubuntu-trusty
@@ -468,12 +459,10 @@ jobs:
       - do:
         - <<: *deploy-director
 
-        - <<: *prepare-bats
-          params:
-            <<: *prepare-bats-params
-            STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-trusty-go_agent
-
         - <<: *run-bats
+          params:
+            <<: *run-bats-params
+            STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-trusty-go_agent
         ensure:
           do:
           - <<: *teardown
@@ -665,7 +654,7 @@ resources:
   - name: environment
     type: pool
     source:
-      pool: vsphere
+      pool: vsphere-new
       uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
       branch: master
       private_key: {{github_deployment_key__bosh-cpi-environments}}
