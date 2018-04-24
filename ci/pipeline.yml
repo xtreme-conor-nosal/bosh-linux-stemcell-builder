@@ -649,7 +649,7 @@ resources:
     type: git
     source:
       uri: https://github.com/cloudfoundry/bosh-acceptance-tests.git
-      branch: master
+      branch: stemcell-3363.x
 
   - name: environment
     type: pool
