@@ -1,17 +1,37 @@
+---
 groups:
-- name: bosh:xenial-stemcells
+- name: master
   jobs:
-  - bats-ubuntu
-  - build-vcloud-esxi-ubuntu-xenial
-  - build-vsphere-esxi-ubuntu-xenial
-  - build-openstack-kvm-ubuntu-xenial
-  - build-google-kvm-ubuntu-xenial
-  - build-azure-hyperv-ubuntu-xenial
-  - build-aws-xen-hvm-ubuntu-xenial
-  - build-warden-boshlite-ubuntu-xenial
-  - test-stemcells
-  - build-stemcell
-  - test-unit
+  - master-bats
+  - master-build-vcloud-esxi
+  - master-build-vsphere-esxi
+  - master-build-openstack-kvm
+  - master-build-google-kvm
+  - master-build-azure-hyperv
+  - master-build-aws-xen-hvm
+  - master-build-warden-boshlite
+  - master-test-stemcells
+  - master-build-stemcell
+  - master-test-unit
+  - master-build-os-image
+  - master-start-job
+
+- name: 1.x
+  jobs:
+  - 1.x-bats
+  - 1.x-build-vcloud-esxi
+  - 1.x-build-vsphere-esxi
+  - 1.x-build-openstack-kvm
+  - 1.x-build-google-kvm
+  - 1.x-build-azure-hyperv
+  - 1.x-build-aws-xen-hvm
+  - 1.x-build-warden-boshlite
+  - 1.x-test-stemcells
+  - 1.x-build-stemcell
+  - 1.x-test-unit
+  - 1.x-publish-stemcells
+  - 1.x-build-os-image
+  - 1.x-start-job
 
 shared:
   - &deploy-director
@@ -20,19 +40,19 @@ shared:
     file: bosh-linux-stemcell-builder/ci/bats/tasks/deploy-director.yml
     params:
       BAT_INFRASTRUCTURE: vsphere
-      BOSH_CLIENT:                          {{stemcell-test-director-username}}
-      BOSH_CLIENT_SECRET:                   {{stemcell-test-director-password}}
-      BOSH_VSPHERE_VCENTER:                 {{vcenter-ip}}
-      BOSH_VSPHERE_VCENTER_USER:            {{vcenter-user}}
-      BOSH_VSPHERE_VCENTER_PASSWORD:        {{vcenter-password}}
-      BOSH_VSPHERE_VERSION:                 {{vsphere-version}}
-      BOSH_VSPHERE_VCENTER_DC:              {{vcenter-dc}}
-      BOSH_VSPHERE_VCENTER_CLUSTER:         {{vcenter-cluster}}
-      BOSH_VSPHERE_VCENTER_DATASTORE:       {{vcenter-datastore}}
-      BOSH_VSPHERE_VCENTER_VLAN:            {{vcenter-vlan}}
-      BOSH_VSPHERE_VCENTER_VM_FOLDER:       {{vcenter-vm-folder}}
-      BOSH_VSPHERE_VCENTER_TEMPLATE_FOLDER: {{vcenter-template-folder}}
-      BOSH_VSPHERE_VCENTER_DISK_PATH:       {{vcenter-disk-path}}
+      BOSH_CLIENT:                          ((stemcell-test-director-username))
+      BOSH_CLIENT_SECRET:                   ((stemcell-test-director-password))
+      BOSH_VSPHERE_VCENTER:                 ((vcenter-ip))
+      BOSH_VSPHERE_VCENTER_USER:            ((vcenter-user))
+      BOSH_VSPHERE_VCENTER_PASSWORD:        ((vcenter-password))
+      BOSH_VSPHERE_VERSION:                 ((vsphere-version))
+      BOSH_VSPHERE_VCENTER_DC:              ((vcenter-dc))
+      BOSH_VSPHERE_VCENTER_CLUSTER:         ((vcenter-cluster))
+      BOSH_VSPHERE_VCENTER_DATASTORE:       ((vcenter-datastore))
+      BOSH_VSPHERE_VCENTER_VLAN:            ((vcenter-vlan))
+      BOSH_VSPHERE_VCENTER_VM_FOLDER:       ((vcenter-vm-folder))
+      BOSH_VSPHERE_VCENTER_TEMPLATE_FOLDER: ((vcenter-template-folder))
+      BOSH_VSPHERE_VCENTER_DISK_PATH:       ((vcenter-disk-path))
 
   - &prepare-bats-config
     task: prepare-bats
@@ -50,7 +70,29 @@ shared:
     file: bosh-linux-stemcell-builder/ci/bats/tasks/destroy-director.yml
 
 jobs:
-  - name: test-unit
+  - name: master-start-job
+    serial: true
+    plan:
+      - get: bosh-linux-stemcell-builder
+
+  - name: master-build-os-image
+    plan:
+      - get: bosh-linux-stemcell-builder
+        trigger: true
+        passed:
+          - master-start-job
+      - task: build
+        file: bosh-linux-stemcell-builder/ci/os-images/tasks/build.yml
+        privileged: true
+        params:
+          OPERATING_SYSTEM_NAME:      ubuntu
+          OPERATING_SYSTEM_VERSION:   xenial
+      - put: os-image-tarball
+        params:
+          file: os-image/ubuntu-xenial.tgz
+          acl: public-read
+
+  - name: master-test-unit
     serial: true
     plan:
       - get: bosh-linux-stemcell-builder
@@ -58,21 +100,21 @@ jobs:
       - task: test-unit
         file: bosh-linux-stemcell-builder/ci/tasks/test-unit.yml
 
-  - name: build-stemcell
+  - name: master-build-stemcell
     serial: true
     plan:
       - get: bosh-linux-stemcell-builder
         trigger: true
         passed:
-          - test-unit
+          - master-test-unit
       - get: version
         params:
-          bump: {{stemcell_version_semver_bump}}
+          bump: major
       - put: version
         params:
           file: version/number
 
-  - name: test-stemcells
+  - name: master-test-stemcells
     serial: true
     plan:
       - do:
@@ -80,20 +122,20 @@ jobs:
           - get: version
             trigger: true
             passed:
-              - build-warden-boshlite-ubuntu-xenial
-              - build-aws-xen-hvm-ubuntu-xenial
-              - build-azure-hyperv-ubuntu-xenial
-              - build-google-kvm-ubuntu-xenial
-              - build-openstack-kvm-ubuntu-xenial
-              - build-vsphere-esxi-ubuntu-xenial
-              - build-vcloud-esxi-ubuntu-xenial
+              - master-build-warden-boshlite
+              - master-build-aws-xen-hvm
+              - master-build-azure-hyperv
+              - master-build-google-kvm
+              - master-build-openstack-kvm
+              - master-build-vsphere-esxi
+              - master-build-vcloud-esxi
           - get: bosh-linux-stemcell-builder
           - get: bosh-deployment
           - get: bosh-cli
           - get: syslog-release
           - get: os-conf-release
-          - get: vsphere-esxi-ubuntu-xenial
-            passed: [build-vsphere-esxi-ubuntu-xenial]
+          - get: vsphere-esxi
+            passed: [master-build-vsphere-esxi]
             tags:
             - vsphere-v5.1
         - put: environment
@@ -105,27 +147,27 @@ jobs:
             tags: [vsphere-v5.1]
             file: bosh-linux-stemcell-builder/ci/tasks/deploy-director.yml
             input_mapping:
-              stemcell: vsphere-esxi-ubuntu-xenial
+              stemcell: vsphere-esxi
             params:
-              BOSH_internal_ip:         {{stemcell-test-director-address}}
-              BOSH_internal_cidr:       {{bosh-director-vcenter-cidr}}
-              BOSH_internal_gw:         {{bosh-director-vcenter-gateway}}
-              BOSH_vcenter_ip:          {{vcenter-ip}}
-              BOSH_vcenter_user:        {{vcenter-user}}
-              BOSH_vcenter_password:    {{vcenter-password}}
-              BOSH_vcenter_dc:          {{vcenter-dc}}
-              BOSH_vcenter_cluster:     {{vcenter-cluster}}
-              BOSH_vcenter_ds:          {{vcenter-datastore}}
-              BOSH_network_name:        {{vcenter-vlan}}
-              BOSH_vcenter_vms:         {{vcenter-vm-folder}}
-              BOSH_vcenter_templates:   {{vcenter-template-folder}}
-              BOSH_vcenter_disks:       {{vcenter-disk-path}}
+              BOSH_internal_ip:         ((stemcell-test-director-address))
+              BOSH_internal_cidr:       ((bosh-director-vcenter-cidr))
+              BOSH_internal_gw:         ((bosh-director-vcenter-gateway))
+              BOSH_vcenter_ip:          ((vcenter-ip))
+              BOSH_vcenter_user:        ((vcenter-user))
+              BOSH_vcenter_password:    ((vcenter-password))
+              BOSH_vcenter_dc:          ((vcenter-dc))
+              BOSH_vcenter_cluster:     ((vcenter-cluster))
+              BOSH_vcenter_ds:          ((vcenter-datastore))
+              BOSH_network_name:        ((vcenter-vlan))
+              BOSH_vcenter_vms:         ((vcenter-vm-folder))
+              BOSH_vcenter_templates:   ((vcenter-template-folder))
+              BOSH_vcenter_disks:       ((vcenter-disk-path))
 
           - task: test-stemcell
             tags: [vsphere-v5.1]
             file: bosh-linux-stemcell-builder/ci/tasks/test-stemcell.yml
             input_mapping:
-              stemcell: vsphere-esxi-ubuntu-xenial
+              stemcell: vsphere-esxi
             params:
               BOSH_os_name: ubuntu-xenial
               package: ipv4director
@@ -138,60 +180,18 @@ jobs:
           params:
             release: environment
 
-  # - name: publish-stemcells
-  #   serial: true
-  #   plan:
-  #     - aggregate:
-  #       - get: version
-  #         passed:
-  #           - test-stemcells
-  #           - bats-ubuntu
-  #       - get: bosh-linux-stemcell-builder
-  #         passed:
-  #           - bats-ubuntu
-  #       - get: stemcells-index
-  #     - task: assert-version-aligns
-  #       file: bosh-linux-stemcell-builder/ci/tasks/assert-version-aligns.yml
-  #     - task: copy-ubuntu-xenial-artifacts
-  #       file: bosh-linux-stemcell-builder/ci/tasks/publish.yml
-  #       params:
-  #         AWS_ACCESS_KEY_ID: {{stemcell_aws_access_key}}
-  #         AWS_SECRET_ACCESS_KEY: {{stemcell_aws_secret_key}}
-  #         CANDIDATE_BUCKET_NAME: {{candidate_stemcell_bucket}}
-  #         PUBLISHED_BUCKET_NAME: {{published_stemcell_bucket}}
-  #         OS_NAME: ubuntu
-  #         OS_VERSION: xenial
-  #         COPY_KEYS: |
-  #           aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
-  #           google/bosh-stemcell-%s-google-kvm-ubuntu-xenial-go_agent.tgz
-  #           openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial-go_agent.tgz
-  #           openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
-  #           warden/bosh-stemcell-%s-warden-boshlite-ubuntu-xenial-go_agent.tgz
-  #           vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-xenial-go_agent.tgz
-  #           vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-xenial-go_agent.tgz
-  #           azure/bosh-stemcell-%s-azure-hyperv-ubuntu-xenial-go_agent.tgz
-  #     - aggregate:
-  #       - put: bosh-linux-stemcell-builder-push
-  #         params:
-  #           repository: bosh-linux-stemcell-builder
-  #           tag: version-tag/tag
-  #           only_tag: true
-  #       - put: stemcells-index
-  #         params:
-  #           repository: stemcells-index
-  #           rebase: true
 
   # WARDEN
   #
 
-  - name: build-warden-boshlite-ubuntu-xenial
+  - name: master-build-warden-boshlite
     plan:
       - aggregate:
           - get: version
             trigger: true
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
         file: bosh-linux-stemcell-builder/ci/tasks/build.yml
@@ -202,7 +202,7 @@ jobs:
           OS_NAME:      ubuntu
           OS_VERSION:   xenial
       - aggregate:
-        - put: warden-boshlite-ubuntu-xenial
+        - put: warden-boshlite
           params:
             file: stemcell/*.tgz
       - put: stemcells-index
@@ -215,14 +215,14 @@ jobs:
   # AWS
   #
 
-  - name: build-aws-xen-hvm-ubuntu-xenial
+  - name: master-build-aws-xen-hvm
     plan:
       - aggregate:
           - get: version
             trigger: true
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
         file: bosh-linux-stemcell-builder/ci/tasks/build.yml
@@ -233,7 +233,7 @@ jobs:
           OS_NAME:      ubuntu
           OS_VERSION:   xenial
       - aggregate:
-        - put: aws-xen-hvm-ubuntu-xenial
+        - put: aws-xen-hvm
           params:
             file: stemcell/*.tgz
       - put: stemcells-index
@@ -246,14 +246,14 @@ jobs:
   # Azure
   #
 
-  - name: build-azure-hyperv-ubuntu-xenial
+  - name: master-build-azure-hyperv
     plan:
       - aggregate:
           - get: version
             trigger: true
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
         file: bosh-linux-stemcell-builder/ci/tasks/build.yml
@@ -264,7 +264,7 @@ jobs:
           OS_NAME:      ubuntu
           OS_VERSION:   xenial
       - aggregate:
-        - put: azure-hyperv-ubuntu-xenial
+        - put: azure-hyperv
           params:
             file: stemcell/*.tgz
       - put: stemcells-index
@@ -277,14 +277,14 @@ jobs:
   # Google
   #
 
-  - name: build-google-kvm-ubuntu-xenial
+  - name: master-build-google-kvm
     plan:
       - aggregate:
           - get: version
             trigger: true
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
         file: bosh-linux-stemcell-builder/ci/tasks/build.yml
@@ -295,7 +295,7 @@ jobs:
           OS_NAME:      ubuntu
           OS_VERSION:   xenial
       - aggregate:
-        - put: google-kvm-ubuntu-xenial
+        - put: google-kvm
           params:
             file: stemcell/*-go_agent.tgz
       - put: stemcells-index
@@ -308,14 +308,14 @@ jobs:
   # OpenStack
   #
 
-  - name: build-openstack-kvm-ubuntu-xenial
+  - name: master-build-openstack-kvm
     plan:
       - aggregate:
           - get: version
             trigger: true
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
         file: bosh-linux-stemcell-builder/ci/tasks/build.yml
@@ -326,10 +326,10 @@ jobs:
           OS_NAME:      ubuntu
           OS_VERSION:   xenial
       - aggregate:
-        - put: openstack-kvm-ubuntu-xenial-raw
+        - put: openstack-kvm-raw
           params:
             file: stemcell/*-raw.tgz
-        - put: openstack-kvm-ubuntu-xenial
+        - put: openstack-kvm
           params:
             file: stemcell/*-go_agent.tgz
       - put: stemcells-index
@@ -342,14 +342,14 @@ jobs:
   # vSphere
   #
 
-  - name: build-vsphere-esxi-ubuntu-xenial
+  - name: master-build-vsphere-esxi
     plan:
       - aggregate:
           - get: version
             trigger: true
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
         file: bosh-linux-stemcell-builder/ci/tasks/build.yml
@@ -360,7 +360,7 @@ jobs:
           OS_NAME:      ubuntu
           OS_VERSION:   xenial
       - aggregate:
-        - put: vsphere-esxi-ubuntu-xenial
+        - put: vsphere-esxi
           params:
             file: stemcell/*.tgz
       - put: stemcells-index
@@ -372,14 +372,14 @@ jobs:
   # vCloud
   #
 
-  - name: build-vcloud-esxi-ubuntu-xenial
+  - name: master-build-vcloud-esxi
     plan:
       - aggregate:
           - get: version
             trigger: true
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: bosh-linux-stemcell-builder
-            passed: [build-stemcell]
+            passed: [master-build-stemcell]
           - get: stemcells-index
       - task: create-stemcell
         file: bosh-linux-stemcell-builder/ci/tasks/build.yml
@@ -390,7 +390,7 @@ jobs:
           OS_NAME:      ubuntu
           OS_VERSION:   xenial
       - aggregate:
-        - put: vcloud-esxi-ubuntu-xenial
+        - put: vcloud-esxi
           params:
             file: stemcell/*.tgz
       - put: stemcells-index
@@ -398,7 +398,7 @@ jobs:
           repository: stemcells-index
           rebase: true
 
-  - name: bats-ubuntu
+  - name: master-bats
     serial: true
     plan:
     - do:
@@ -409,30 +409,30 @@ jobs:
           trigger: true
           tags:
           - vsphere-v5.1
-          resource: vsphere-esxi-ubuntu-xenial
+          resource: vsphere-esxi
           passed:
-            - build-vsphere-esxi-ubuntu-xenial
+            - master-build-vsphere-esxi
         - get: bosh-cli
         - get: bats
         - get: bosh-deployment
         - get: bosh-linux-stemcell-builder
           passed:
-            - build-warden-boshlite-ubuntu-xenial
-            - build-aws-xen-hvm-ubuntu-xenial
-            - build-azure-hyperv-ubuntu-xenial
-            - build-google-kvm-ubuntu-xenial
-            - build-openstack-kvm-ubuntu-xenial
-            - build-vsphere-esxi-ubuntu-xenial
-            - build-vcloud-esxi-ubuntu-xenial
+            - master-build-warden-boshlite
+            - master-build-aws-xen-hvm
+            - master-build-azure-hyperv
+            - master-build-google-kvm
+            - master-build-openstack-kvm
+            - master-build-vsphere-esxi
+            - master-build-vcloud-esxi
         - get: version
           passed:
-            - build-warden-boshlite-ubuntu-xenial
-            - build-aws-xen-hvm-ubuntu-xenial
-            - build-azure-hyperv-ubuntu-xenial
-            - build-google-kvm-ubuntu-xenial
-            - build-openstack-kvm-ubuntu-xenial
-            - build-vsphere-esxi-ubuntu-xenial
-            - build-vcloud-esxi-ubuntu-xenial
+            - master-build-warden-boshlite
+            - master-build-aws-xen-hvm
+            - master-build-azure-hyperv
+            - master-build-google-kvm
+            - master-build-openstack-kvm
+            - master-build-vsphere-esxi
+            - master-build-vcloud-esxi
 
       - {put: environment, params: {acquire: true}}
 
@@ -452,13 +452,483 @@ jobs:
         - {put: environment, params: {release: environment}}
 
 
+#####################
+#####################
+# xenial-1.x branch #
+#####################
+#####################
+
+  - name: 1.x-start-job
+    serial: true
+    plan:
+      - get: 1.x-bosh-linux-stemcell-builder
+
+  - name: 1.x-build-os-image
+    plan:
+      - get: 1.x-bosh-linux-stemcell-builder
+        trigger: true
+        passed:
+          - 1.x-start-job
+      - task: build
+        file: bosh-linux-stemcell-builder/ci/os-images/tasks/build.yml
+        privileged: true
+        params:
+          OPERATING_SYSTEM_NAME:      ubuntu
+          OPERATING_SYSTEM_VERSION:   xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+      - put: 1.x-os-image-tarball
+        params:
+          file: os-image/ubuntu-xenial.tgz
+          acl: public-read
+
+  - name: 1.x-test-unit
+    serial: true
+    plan:
+      - get: 1.x-bosh-linux-stemcell-builder
+        trigger: true
+      - task: test-unit
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/test-unit.yml
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+
+  - name: 1.x-build-stemcell
+    serial: true
+    plan:
+      - get: 1.x-bosh-linux-stemcell-builder
+        trigger: true
+        passed:
+          - 1.x-test-unit
+      - get: 1.x-version
+        params:
+          bump: minor
+      - put: 1.x-version
+        params:
+          file: 1.x-version/number
+
+  - name: 1.x-test-stemcells
+    serial: true
+    plan:
+      - do:
+        - aggregate:
+          - get: 1.x-version
+            trigger: true
+            passed:
+              - 1.x-build-warden-boshlite
+              - 1.x-build-aws-xen-hvm
+              - 1.x-build-azure-hyperv
+              - 1.x-build-google-kvm
+              - 1.x-build-openstack-kvm
+              - 1.x-build-vsphere-esxi
+              - 1.x-build-vcloud-esxi
+          - get: 1.x-bosh-linux-stemcell-builder
+          - get: bosh-deployment
+          - get: bosh-cli
+          - get: syslog-release
+          - get: os-conf-release
+          - get: 1.x-vsphere-esxi
+            passed: [1.x-build-vsphere-esxi]
+            tags:
+            - vsphere-v5.1
+        - put: environment
+          params:
+            acquire: true
+
+        - do:
+          - task: deploy-director
+            tags: [vsphere-v5.1]
+            file: 1.x-bosh-linux-stemcell-builder/ci/tasks/deploy-director.yml
+            input_mapping:
+              stemcell: vsphere-esxi
+              bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+              version: 1.x-version
+            params:
+              BOSH_internal_ip:         ((stemcell-test-director-address))
+              BOSH_internal_cidr:       ((bosh-director-vcenter-cidr))
+              BOSH_internal_gw:         ((bosh-director-vcenter-gateway))
+              BOSH_vcenter_ip:          ((vcenter-ip))
+              BOSH_vcenter_user:        ((vcenter-user))
+              BOSH_vcenter_password:    ((vcenter-password))
+              BOSH_vcenter_dc:          ((vcenter-dc))
+              BOSH_vcenter_cluster:     ((vcenter-cluster))
+              BOSH_vcenter_ds:          ((vcenter-datastore))
+              BOSH_network_name:        ((vcenter-vlan))
+              BOSH_vcenter_vms:         ((vcenter-vm-folder))
+              BOSH_vcenter_templates:   ((vcenter-template-folder))
+              BOSH_vcenter_disks:       ((vcenter-disk-path))
+          - task: test-stemcell
+            tags: [vsphere-v5.1]
+            file: 1.x-bosh-linux-stemcell-builder/ci/tasks/test-stemcell.yml
+            input_mapping:
+              stemcell: 1.x-vsphere-esxi
+              bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+              version: 1.x-version
+            params:
+              BOSH_os_name: ubuntu-xenial
+              package: ipv4director
+          ensure:
+            task: teardown
+            tags: [vsphere-v5.1]
+            file: 1.x-bosh-linux-stemcell-builder/ci/tasks/teardown.yml
+        ensure:
+          put: environment
+          params:
+            release: environment
+
+  - name: 1.x-publish-stemcells
+    serial: true
+    plan:
+      - aggregate:
+        - get: 1.x-version
+          passed:
+            - 1.x-test-stemcells
+            - 1.x-bats
+        - get: 1.x-bosh-linux-stemcell-builder
+          passed:
+            - 1.x-bats
+        - get: stemcells-index
+      - task: assert-version-aligns
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/assert-version-aligns.yml
+        params:
+          VERSION_PREFIX: xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - task: copy-artifacts
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/publish.yml
+        params:
+          VERSION_PREFIX: xenial
+          AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
+          AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))
+          CANDIDATE_BUCKET_NAME: ((candidate_stemcell_bucket))
+          PUBLISHED_BUCKET_NAME: ((published_stemcell_bucket))
+          OS_NAME: ubuntu
+          OS_VERSION: xenial
+          COPY_KEYS: |
+            aws/bosh-stemcell-%s-aws-xen-hvm-ubuntu-xenial.tgz
+            google/bosh-stemcell-%s-google-kvm-ubuntu-xenial-go_agent.tgz
+            openstack/bosh-stemcell-%s-openstack-kvm-ubuntu-xenial.tgz
+            warden/bosh-stemcell-%s-warden-boshlite-ubuntu-xenial.tgz
+            vsphere/bosh-stemcell-%s-vsphere-esxi-ubuntu-xenial.tgz
+            vcloud/bosh-stemcell-%s-vcloud-esxi-ubuntu-xenial.tgz
+            azure/bosh-stemcell-%s-azure-hyperv-ubuntu-xenial.tgz
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - aggregate:
+        - put: 1.x-bosh-linux-stemcell-builder-push
+          params:
+            repository: 1.x-bosh-linux-stemcell-builder
+            tag: version-tag/tag
+            only_tag: true
+        - put: stemcells-index
+          params:
+            repository: stemcells-index
+            rebase: true
+
+  # WARDEN
+  #
+
+  - name: 1.x-build-warden-boshlite
+    plan:
+      - aggregate:
+          - get: 1.x-version
+            trigger: true
+            passed: [1.x-build-stemcell]
+          - get: 1.x-bosh-linux-stemcell-builder
+            passed: [1.x-build-stemcell]
+          - get: stemcells-index
+      - task: create-stemcell
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/build.yml
+        privileged: true
+        params:
+          IAAS:         warden
+          HYPERVISOR:   boshlite
+          OS_NAME:      ubuntu
+          OS_VERSION:   xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - aggregate:
+        - put: 1.x-warden-boshlite
+          params:
+            file: stemcell/*.tgz
+      - put: stemcells-index
+        params:
+          repository: stemcells-index
+          rebase: true
+
+
+  #
+  # AWS
+  #
+
+  - name: 1.x-build-aws-xen-hvm
+    plan:
+      - aggregate:
+          - get: 1.x-version
+            trigger: true
+            passed: [1.x-build-stemcell]
+          - get: 1.x-bosh-linux-stemcell-builder
+            passed: [1.x-build-stemcell]
+          - get: stemcells-index
+      - task: create-stemcell
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/build.yml
+        privileged: true
+        params:
+          IAAS:         aws
+          HYPERVISOR:   xen-hvm
+          OS_NAME:      ubuntu
+          OS_VERSION:   xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - aggregate:
+        - put: 1.x-aws-xen-hvm
+          params:
+            file: stemcell/*.tgz
+      - put: stemcells-index
+        params:
+          repository: stemcells-index
+          rebase: true
+
+
+  #
+  # Azure
+  #
+
+  - name: 1.x-build-azure-hyperv
+    plan:
+      - aggregate:
+          - get: 1.x-version
+            trigger: true
+            passed: [1.x-build-stemcell]
+          - get: 1.x-bosh-linux-stemcell-builder
+            passed: [1.x-build-stemcell]
+          - get: stemcells-index
+      - task: create-stemcell
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/build.yml
+        privileged: true
+        params:
+          IAAS:         azure
+          HYPERVISOR:   hyperv
+          OS_NAME:      ubuntu
+          OS_VERSION:   xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - aggregate:
+        - put: 1.x-azure-hyperv
+          params:
+            file: stemcell/*.tgz
+      - put: stemcells-index
+        params:
+          repository: stemcells-index
+          rebase: true
+
+
+  #
+  # Google
+  #
+
+  - name: 1.x-build-google-kvm
+    plan:
+      - aggregate:
+          - get: 1.x-version
+            trigger: true
+            passed: [1.x-build-stemcell]
+          - get: 1.x-bosh-linux-stemcell-builder
+            passed: [1.x-build-stemcell]
+          - get: stemcells-index
+      - task: create-stemcell
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/build.yml
+        privileged: true
+        params:
+          IAAS:         google
+          HYPERVISOR:   kvm
+          OS_NAME:      ubuntu
+          OS_VERSION:   xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - aggregate:
+        - put: 1.x-google-kvm
+          params:
+            file: stemcell/*-go_agent.tgz
+      - put: stemcells-index
+        params:
+          repository: stemcells-index
+          rebase: true
+
+
+  #
+  # OpenStack
+  #
+
+  - name: 1.x-build-openstack-kvm
+    plan:
+      - aggregate:
+          - get: 1.x-version
+            trigger: true
+            passed: [1.x-build-stemcell]
+          - get: 1.x-bosh-linux-stemcell-builder
+            passed: [1.x-build-stemcell]
+          - get: stemcells-index
+      - task: create-stemcell
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/build.yml
+        privileged: true
+        params:
+          IAAS:         openstack
+          HYPERVISOR:   kvm
+          OS_NAME:      ubuntu
+          OS_VERSION:   xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - aggregate:
+        - put: 1.x-openstack-kvm-raw
+          params:
+            file: stemcell/*-raw.tgz
+        - put: 1.x-openstack-kvm
+          params:
+            file: stemcell/*-go_agent.tgz
+      - put: stemcells-index
+        params:
+          repository: stemcells-index
+          rebase: true
+
+
+  #
+  # vSphere
+  #
+
+  - name: 1.x-build-vsphere-esxi
+    plan:
+      - aggregate:
+          - get: 1.x-version
+            trigger: true
+            passed: [1.x-build-stemcell]
+          - get: 1.x-bosh-linux-stemcell-builder
+            passed: [1.x-build-stemcell]
+          - get: stemcells-index
+      - task: create-stemcell
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/build.yml
+        privileged: true
+        params:
+          IAAS:         vsphere
+          HYPERVISOR:   esxi
+          OS_NAME:      ubuntu
+          OS_VERSION:   xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - aggregate:
+        - put: 1.x-vsphere-esxi
+          params:
+            file: stemcell/*.tgz
+      - put: stemcells-index
+        params:
+          repository: stemcells-index
+          rebase: true
+
+  #
+  # vCloud
+  #
+
+  - name: 1.x-build-vcloud-esxi
+    plan:
+      - aggregate:
+          - get: 1.x-version
+            trigger: true
+            passed: [1.x-build-stemcell]
+          - get: 1.x-bosh-linux-stemcell-builder
+            passed: [1.x-build-stemcell]
+          - get: stemcells-index
+      - task: create-stemcell
+        file: 1.x-bosh-linux-stemcell-builder/ci/tasks/build.yml
+        privileged: true
+        params:
+          IAAS:         vcloud
+          HYPERVISOR:   esxi
+          OS_NAME:      ubuntu
+          OS_VERSION:   xenial
+        input_mapping:
+          bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+          version: 1.x-version
+      - aggregate:
+        - put: 1.x-vcloud-esxi
+          params:
+            file: stemcell/*.tgz
+      - put: stemcells-index
+        params:
+          repository: stemcells-index
+          rebase: true
+
+  - name: 1.x-bats
+    serial: true
+    plan:
+    - do:
+      - aggregate:
+        - get: bosh-release
+        - get: cpi-release
+        - get: stemcell
+          trigger: true
+          tags:
+          - vsphere-v5.1
+          resource: 1.x-vsphere-esxi
+          passed:
+            - 1.x-build-vsphere-esxi
+        - get: bosh-cli
+        - get: bats
+        - get: bosh-deployment
+        - get: 1.x-bosh-linux-stemcell-builder
+          passed:
+            - 1.x-build-warden-boshlite
+            - 1.x-build-aws-xen-hvm
+            - 1.x-build-azure-hyperv
+            - 1.x-build-google-kvm
+            - 1.x-build-openstack-kvm
+            - 1.x-build-vsphere-esxi
+            - 1.x-build-vcloud-esxi
+        - get: 1.x-version
+          passed:
+            - 1.x-build-warden-boshlite
+            - 1.x-build-aws-xen-hvm
+            - 1.x-build-azure-hyperv
+            - 1.x-build-google-kvm
+            - 1.x-build-openstack-kvm
+            - 1.x-build-vsphere-esxi
+            - 1.x-build-vcloud-esxi
+
+      - {put: environment, params: {acquire: true}}
+
+      - do:
+        - <<: *deploy-director
+          input_mapping:
+            bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+
+        - <<: *prepare-bats-config
+          params:
+            STEMCELL_NAME: bosh-vsphere-esxi-ubuntu-xenial-go_agent
+          input_mapping:
+            bosh-linux-stemcell-builder: 1.x-bosh-linux-stemcell-builder
+
+        - <<: *run-bats
+        ensure:
+          do:
+          - <<: *teardown
+      ensure:
+        do:
+        - {put: environment, params: {release: environment}}
+
 resources:
-  # - name: bosh-linux-stemcell-builder-push
-  #   type: git
-  #   source:
-  #     uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
-  #     branch: {{stemcell-branch}}
-  #     private_key: {{bosh_src_key}}
+  - name: os-image-tarball
+    type: s3
+    source:
+      bucket: ((osimage_bucket))
+      versioned_file: bosh-ubuntu-xenial-os-image.tgz
+      access_key_id: ((osimage_aws_access_key))
+      secret_access_key: ((osimage_aws_secret_key))
 
   - name: bosh-linux-stemcell-builder
     type: git
@@ -471,16 +941,17 @@ resources:
     source:
       uri: git@github.com:bosh-io/stemcells-core-index.git
       branch: master
-      private_key: {{boshio_stemcells_index_key}}
+      private_key: ((boshio_stemcells_index_key))
 
   - name: version
     type: semver
     source:
       driver: s3
-      key: {{stemcell_version_key}}
-      bucket: {{candidate_stemcell_bucket}}
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      key: bosh-stemcell/version-xenial
+      bucket: ((candidate_stemcell_bucket))
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+      initial_version: 1.0.0
 
   - name: syslog-release
     type: bosh-io-release
@@ -527,7 +998,7 @@ resources:
       pool: vsphere
       uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
       branch: master
-      private_key: {{github_deployment_key__bosh-cpi-environments}}
+      private_key: ((github_deployment_key__bosh-cpi-environments))
 
   #
   # Stemcells
@@ -537,90 +1008,223 @@ resources:
   # AWS
   #
 
-  - name: aws-xen-hvm-ubuntu-xenial
+  - name: aws-xen-hvm
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # Azure
   #
 
-  - name: azure-hyperv-ubuntu-xenial
+  - name: azure-hyperv
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # vSphere
   #
 
-  - name: vsphere-esxi-ubuntu-xenial
+  - name: vsphere-esxi
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: vsphere/bosh-stemcell-(.+)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # Google
   #
 
-  - name: google-kvm-ubuntu-xenial
+  - name: google-kvm
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # Openstack
   #
 
-  - name: openstack-kvm-ubuntu-xenial
+  - name: openstack-kvm
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
-  - name: openstack-kvm-ubuntu-xenial-raw
+  - name: openstack-kvm-raw
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # vCloud
   #
 
-  - name: vcloud-esxi-ubuntu-xenial
+  - name: vcloud-esxi
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-xenial-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # Warden
   #
 
-  - name: warden-boshlite-ubuntu-xenial
+  - name: warden-boshlite
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+
+#####################
+#####################
+# xenial-1.x branch #
+#####################
+#####################
+
+  - name: 1.x-os-image-tarball
+    type: s3
+    source:
+      bucket: ((osimage_bucket))
+      versioned_file: bosh-ubuntu-xenial-os-image.tgz
+      access_key_id: ((osimage_aws_access_key))
+      secret_access_key: ((osimage_aws_secret_key))
+
+  - name: 1.x-bosh-linux-stemcell-builder-push
+    type: git
+    source:
+      uri: git@github.com:cloudfoundry/bosh-linux-stemcell-builder
+      branch: xenial-1.x
+      private_key: ((bosh_src_key))
+
+  - name: 1.x-bosh-linux-stemcell-builder
+    type: git
+    source:
+      uri: https://github.com/cloudfoundry/bosh-linux-stemcell-builder
+      branch: xenial-1.x
+
+  - name: 1.x-version
+    type: semver
+    source:
+      driver: s3
+      key: bosh-stemcell/version-xenial-1.x
+      bucket: ((candidate_stemcell_bucket))
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+  #
+  # Stemcells
+  #
+
+  #
+  # AWS
+  #
+
+  - name: 1.x-aws-xen-hvm
+    type: s3
+    source:
+      bucket: ((candidate_stemcell_bucket))
+      regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+  #
+  # Azure
+  #
+
+  - name: 1.x-azure-hyperv
+    type: s3
+    source:
+      bucket: ((candidate_stemcell_bucket))
+      regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-xenial-go_agent.tgz
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+  #
+  # vSphere
+  #
+
+  - name: 1.x-vsphere-esxi
+    type: s3
+    source:
+      bucket: ((candidate_stemcell_bucket))
+      regexp: vsphere/bosh-stemcell-(.+)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+  #
+  # Google
+  #
+
+  - name: 1.x-google-kvm
+    type: s3
+    source:
+      bucket: ((candidate_stemcell_bucket))
+      regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-xenial-go_agent.tgz
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+  #
+  # Openstack
+  #
+
+  - name: 1.x-openstack-kvm
+    type: s3
+    source:
+      bucket: ((candidate_stemcell_bucket))
+      regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent.tgz
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+  - name: 1.x-openstack-kvm-raw
+    type: s3
+    source:
+      bucket: ((candidate_stemcell_bucket))
+      regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-xenial-go_agent-raw.tgz
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+  #
+  # vCloud
+  #
+
+  - name: 1.x-vcloud-esxi
+    type: s3
+    source:
+      bucket: ((candidate_stemcell_bucket))
+      regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-xenial-go_agent.tgz
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
+
+  #
+  # Warden
+  #
+
+  - name: 1.x-warden-boshlite
+    type: s3
+    source:
+      bucket: ((candidate_stemcell_bucket))
+      regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-xenial-go_agent.tgz
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
