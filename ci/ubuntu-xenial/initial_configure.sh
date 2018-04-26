@@ -2,6 +2,8 @@
 
 set -eu
 
+dir=$(dirname $0)
+
 pipeline="bosh:stemcells"
 args=""
 
@@ -19,7 +21,7 @@ args="
 
 fly -t production set-pipeline \
   -p "$pipeline" \
-  -c <( bosh interpolate $args "ci/$STEMCELL_OS-$STEMCELL_OS_VERSION/pipeline.yml" ) \
+  -c <( bosh interpolate $args <( $dir/generate_pipes.sh xenial-1.x ) ) \
   -l <( lpass show --note "concourse:production pipeline:os-images" ) \
   -l <( lpass show --note "concourse:production pipeline:bosh:stemcells" ) \
   -l <( lpass show --note "bats-concourse-pool:vsphere secrets" ) \
