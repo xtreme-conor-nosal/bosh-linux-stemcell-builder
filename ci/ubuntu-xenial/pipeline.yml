@@ -95,7 +95,7 @@ jobs:
         passed:
         - build-vsphere-esxi
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
     - params:
         acquire: true
       put: environment
@@ -118,7 +118,7 @@ jobs:
           BOSH_vcenter_user: ((vcenter-user))
           BOSH_vcenter_vms: ((vcenter-vm-folder))
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: deploy-director
       - file: bosh-linux-stemcell-builder/ci/tasks/test-stemcell.yml
         input_mapping:
@@ -127,12 +127,12 @@ jobs:
           BOSH_os_name: ((stemcell_os))-((stemcell_os_version))
           package: ipv4director
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: test-stemcell
       ensure:
         file: bosh-linux-stemcell-builder/ci/tasks/teardown.yml
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: teardown
     ensure:
       params:
@@ -383,7 +383,7 @@ jobs:
         - build-vsphere-esxi
         resource: vsphere-esxi
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         trigger: true
       - get: bosh-cli
       - get: bats
@@ -427,23 +427,23 @@ jobs:
           BOSH_VSPHERE_VCENTER_VM_FOLDER: ((vcenter-vm-folder))
           BOSH_VSPHERE_VERSION: ((vsphere-version))
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: deploy-director
       - file: bosh-linux-stemcell-builder/ci/bats/iaas/vsphere/prepare-bats-config.yml
         params:
           STEMCELL_NAME: bosh-vsphere-esxi-((stemcell_os))-((stemcell_os_version))-go_agent
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: prepare-bats
       - file: bats/ci/tasks/run-bats.yml
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: run-bats
       ensure:
         do:
         - file: bosh-linux-stemcell-builder/ci/bats/tasks/destroy-director.yml
           tags:
-          - vsphere-v5.1
+          - vsphere-v6.5
           task: teardown
     ensure:
       do:
@@ -518,7 +518,7 @@ jobs:
         passed:
         - xenial-1.x-build-vsphere-esxi
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
     - params:
         acquire: true
       put: environment
@@ -543,7 +543,7 @@ jobs:
           BOSH_vcenter_user: ((vcenter-user))
           BOSH_vcenter_vms: ((vcenter-vm-folder))
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: deploy-director
       - file: xenial-1.x-bosh-linux-stemcell-builder/ci/tasks/test-stemcell.yml
         input_mapping:
@@ -554,12 +554,12 @@ jobs:
           BOSH_os_name: ((stemcell_os))-((stemcell_os_version))
           package: ipv4director
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: test-stemcell
       ensure:
         file: xenial-1.x-bosh-linux-stemcell-builder/ci/tasks/teardown.yml
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: teardown
     ensure:
       params:
@@ -840,7 +840,7 @@ jobs:
         - xenial-1.x-build-vsphere-esxi
         resource: xenial-1.x-vsphere-esxi
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         trigger: true
       - get: bosh-cli
       - get: bats
@@ -887,7 +887,7 @@ jobs:
           BOSH_VSPHERE_VCENTER_VM_FOLDER: ((vcenter-vm-folder))
           BOSH_VSPHERE_VERSION: ((vsphere-version))
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: deploy-director
       - file: xenial-1.x-bosh-linux-stemcell-builder/ci/bats/iaas/vsphere/prepare-bats-config.yml
         input_mapping:
@@ -896,13 +896,13 @@ jobs:
         params:
           STEMCELL_NAME: bosh-vsphere-esxi-((stemcell_os))-((stemcell_os_version))-go_agent
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: prepare-bats
       - file: bats/ci/tasks/run-bats.yml
         input_mapping:
           stemcell: xenial-1.x-vshpere-esxi
         tags:
-        - vsphere-v5.1
+        - vsphere-v6.5
         task: run-bats
       ensure:
         do:
@@ -910,7 +910,7 @@ jobs:
           input_mapping:
             bosh-linux-stemcell-builder: xenial-1.x-bosh-linux-stemcell-builder
           tags:
-          - vsphere-v5.1
+          - vsphere-v6.5
           task: teardown
     ensure:
       do:
@@ -1148,17 +1148,17 @@ shared:
     BOSH_VSPHERE_VCENTER_VM_FOLDER: ((vcenter-vm-folder))
     BOSH_VSPHERE_VERSION: ((vsphere-version))
   tags:
-  - vsphere-v5.1
+  - vsphere-v6.5
   task: deploy-director
 - file: bosh-linux-stemcell-builder/ci/bats/iaas/vsphere/prepare-bats-config.yml
   tags:
-  - vsphere-v5.1
+  - vsphere-v6.5
   task: prepare-bats
 - file: bats/ci/tasks/run-bats.yml
   tags:
-  - vsphere-v5.1
+  - vsphere-v6.5
   task: run-bats
 - file: bosh-linux-stemcell-builder/ci/bats/tasks/destroy-director.yml
   tags:
-  - vsphere-v5.1
+  - vsphere-v6.5
   task: teardown
