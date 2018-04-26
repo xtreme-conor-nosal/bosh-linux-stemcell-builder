@@ -562,7 +562,7 @@
       bucket: ((candidate_stemcell_bucket))
       driver: s3
       initial_version: ((initial_version))
-      key: bosh-stemcell/((stemcell_os))/version-xenial-1.x
+      key: bosh-stemcell/version-xenial-1.x
       secret_access_key: ((stemcell_aws_secret_key))
     type: semver
 - path: /resources/-
