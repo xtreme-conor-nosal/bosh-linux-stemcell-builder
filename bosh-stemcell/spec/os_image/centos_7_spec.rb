@@ -24,26 +24,6 @@ describe 'CentOS 7 OS image', os_image: true do
     end
   end
 
-  context 'installed by base_centos_umask' do
-    describe file('/etc/profile') do
-      it { should be_file }
-      its(:content) { should match 'umask 077'}
-      its(:content) { should_not match 'umask 022'}
-    end
-
-    describe file('/etc/bashrc') do
-      it { should be_file }
-      its(:content) { should match 'umask 077' }
-      its(:content) { should_not match 'umask 022' }
-    end
-
-    describe file('/etc/csh.cshrc') do
-      it { should be_file }
-      its(:content) { should match 'umask 077'}
-      its(:content) { should_not match 'umask 022'}
-    end
-  end
-
   context 'installed by base_centos_packages' do
     %w(
       bison
@@ -105,7 +85,7 @@ describe 'CentOS 7 OS image', os_image: true do
 
   context 'installed by system_grub' do
     describe package('grub2-tools') do
-      it { should be_installed }
+      it { should be_installed, -> { "Message: #{subject.last_message} #{subject.last_error}" } }
     end
   end
 
@@ -114,7 +94,7 @@ describe 'CentOS 7 OS image', os_image: true do
 
       modules = [
         #ata
-        	'ata_generic', 'pata_acpi',
+          'ata_generic', 'pata_acpi',
         #block
           'floppy', 'loop', 'brd',
         #xen
@@ -127,55 +107,55 @@ describe 'CentOS 7 OS image', os_image: true do
           'mptspi', 'mptbase', 'mptscsih','mpt2sas', 'mpt3sas',
         #scsci
           '3w-9xxx',
-        	'3w-sas',
-        	'aic79xx',
-        	'arcmsr',
-        	'bfa',
-        	'fnic',
-        	'hpsa',
-        	'hptiop',
-        	'initio',
-        	'isci',
-        	'libsas',
-        	'lpfc',
-        	'megaraid_sas',
-        	'mtip32xx',
-        	'mvsas',
-        	'mvumi',
-        	'nvme',
-        	'pm80xx',
-        	'pmcraid',
-        	'qla2xxx',
-        	'qla4xxx',
-        	'raid_class',
-        	'stex',
-        	'sx8',
-        	'vmw_pvscsi',
+          '3w-sas',
+          'aic79xx',
+          'arcmsr',
+          'bfa',
+          'fnic',
+          'hpsa',
+          'hptiop',
+          'initio',
+          'isci',
+          'libsas',
+          'lpfc',
+          'megaraid_sas',
+          'mtip32xx',
+          'mvsas',
+          'mvumi',
+          'nvme',
+          'pm80xx',
+          'pmcraid',
+          'qla2xxx',
+          'qla4xxx',
+          'raid_class',
+          'stex',
+          'sx8',
+          'vmw_pvscsi',
         #fs
-	        'cachefiles',
-	        'cifs',
-	        'cramfs',
-	        'dlm',
-	        'libore',
-	        'fscache',
+          'cachefiles',
+          'cifs',
+          'cramfs',
+          'dlm',
+          'libore',
+          'fscache',
           'grace',
           'nfs_acl',
-	        'fuse',
-	        'gfs2',
-	        'isofs',
-	        'nfs',
-	        'nfsd',
-	        'nfsv3',
-	        'nfsv4',
-	        'overlay',
-	        'ramoops',
-	        'squashfs',
-	        'udf',
+          'fuse',
+          'gfs2',
+          'isofs',
+          'nfs',
+          'nfsd',
+          'nfsv3',
+          'nfsv4',
+          'overlay',
+          'ramoops',
+          'squashfs',
+          'udf',
           'btrfs',
           'ext4',
           'jbd2',
           'mbcache',
-	        'xfs'
+          'xfs'
       ]
 
       modules.each do |foo|
@@ -344,7 +324,7 @@ describe 'CentOS 7 OS image', os_image: true do
 
   context 'restrict access to the su command CIS-9.5' do
     describe command('grep "^\s*auth\s*required\s*pam_wheel.so\s*use_uid" /etc/pam.d/su') do
-      it('exits 0') { expect(subject.exit_status).to eq(0) }
+      it('exits 0') { expect(subject.exit_status).to eq(0), -> { "Stdout: #{subject.stdout} Stderr: #{subject.stderr}" } }
     end
     describe user('vcap') do
       it { should exist }
@@ -450,7 +430,7 @@ man:x:15:
 dialout:x:18:vcap
 floppy:x:19:vcap
 games:x:20:
-tape:x:30:
+tape:x:33:
 video:x:39:vcap
 ftp:x:50:
 lock:x:54:

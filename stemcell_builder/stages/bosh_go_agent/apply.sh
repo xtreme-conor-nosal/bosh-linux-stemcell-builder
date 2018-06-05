@@ -31,6 +31,11 @@ if is_ppc64le; then
 else
   curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.3-linux-amd64"
   echo "34d05277c280f72a57d14606a321329a0b3d3d08b5a905de250e40d341a06422  bosh-agent" | shasum -a 256 -c -
+  # curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-agent-binaries/bosh-agent-2.108.0-linux-ppc64le"
+  # echo "1bbb3a9d73c607bcaff4ffe0ad63808952eff7937632fa07c3f19e0cd9cd758b  bosh-agent" | shasum -a 256 -c -
+# else
+  # curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-agent-binaries/bosh-agent-2.108.0-linux-amd64"
+  # echo "4c494d42bd0add1a1ecd9bae076c9efbd9815f633cede36e1775b11dec9c0406  bosh-agent" | shasum -a 256 -c -
 fi
 mv bosh-agent $chroot/var/vcap/bosh/bin/
 
