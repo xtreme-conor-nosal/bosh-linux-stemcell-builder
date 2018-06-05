@@ -105,6 +105,7 @@ describe Bosh::Stemcell::StemcellPackager do
         'version' => '1234',
         'bosh_protocol' => 1,
         'sha1' => 'c1ebdefc3f8282a9d7d47803fb5030b61ffc793d', # SHA-1 of image above
+        'api_version' => 2,
         'operating_system' => 'centos-7',
         'stemcell_formats' => ['stemcell-format-a', 'stemcell-format-b'],
         'cloud_properties' => {
