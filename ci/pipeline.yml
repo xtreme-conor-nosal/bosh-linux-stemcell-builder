@@ -601,8 +601,6 @@ jobs:
     serial: true
     plan:
     - aggregate:
-      - get: bosh-release
-      - get: cpi-release
       - get: stemcell
         trigger: true
         tags:
@@ -667,8 +665,6 @@ jobs:
     serial: true
     plan:
     - aggregate:
-      - get: bosh-release
-      - get: cpi-release
       - get: stemcell
         trigger: true
         tags:
@@ -772,16 +768,6 @@ resources:
     type: bosh-io-release
     source:
       repository: cloudfoundry/os-conf-release
-
-  - name: bosh-release
-    type: bosh-io-release
-    source:
-      repository: cloudfoundry/bosh
-
-  - name: cpi-release
-    type: bosh-io-release
-    source:
-      repository: cloudfoundry-incubator/bosh-vsphere-cpi-release
 
   #
   # WARDEN
