@@ -26,11 +26,11 @@ cp -a $assets_dir/alerts.monitrc $chroot/var/vcap/monit/alerts.monitrc
 
 cd $assets_dir
 if is_ppc64le; then
-  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.5-linux-ppc64le"
-  echo "b90ccf0f914b5510007ca22d3a12e71df3303379157771a6b52c8c97edea4cb7  bosh-agent" | shasum -a 256 -c -
+  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.6-linux-ppc64le"
+  echo "5f8836e164777655df18be43d4421d58a300198eba54a6140956db2ca27b322d  bosh-agent" | shasum -a 256 -c -
 else
-  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.5-linux-amd64"
-  echo "f33c82517f2b1f6248be83a0018e568c00c9cbf5f5040bae22c5db14b0a75d2e  bosh-agent" | shasum -a 256 -c -
+  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.6-linux-amd64"
+  echo "c3dec8248933f690086e3403eaa7dd2da8773114bf556fa71d74e4010cf6b452  bosh-agent" | shasum -a 256 -c -
 fi
 mv bosh-agent $chroot/var/vcap/bosh/bin/
 
