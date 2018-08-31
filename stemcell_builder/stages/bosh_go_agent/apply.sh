@@ -23,7 +23,6 @@ ln -s /etc/sv/monit /etc/service/monit
 
 # Alerts for monit config
 cp -a $assets_dir/alerts.monitrc $chroot/var/vcap/monit/alerts.monitrc
-
 cd $assets_dir
 if is_ppc64le; then
   curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.7-linux-ppc64le"
@@ -32,6 +31,7 @@ else
   curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.7-linux-amd64"
   echo "baacced74067fbd668fe6348f32de1ddd75f644de02d8a1949a63c9d9b8c54d3  bosh-agent" | shasum -a 256 -c -
 fi
+
 mv bosh-agent $chroot/var/vcap/bosh/bin/
 
 cp $assets_dir/bosh-agent-rc $chroot/var/vcap/bosh/bin/bosh-agent-rc
