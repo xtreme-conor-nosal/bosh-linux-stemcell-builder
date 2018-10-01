@@ -59,21 +59,21 @@ shared:
     tags: [vsphere-v6.5]
     file: pipelines/vsphere/tasks/prepare-director.yml
     params: &prepare-director-params
-      BOSH_CLIENT:                          {{stemcell-test-director-username}}
-      BOSH_CLIENT_SECRET:                   {{stemcell-test-director-password}}
-      BOSH_VSPHERE_VCENTER:                 {{vcenter-ip}}
-      BOSH_VSPHERE_VCENTER_USER:            {{vcenter-user}}
-      BOSH_VSPHERE_VCENTER_PASSWORD:        {{vcenter-password}}
-      BOSH_VSPHERE_VERSION:                 {{vsphere-version}}
-      BOSH_VSPHERE_VCENTER_DC:              {{vcenter-dc}}
-      BOSH_VSPHERE_VCENTER_CLUSTER:         {{vcenter-cluster}}
-      BOSH_VSPHERE_VCENTER_DATASTORE:       {{vcenter-datastore}}
-      BOSH_VSPHERE_VCENTER_VLAN:            {{vcenter-vlan}}
-      BOSH_VSPHERE_VCENTER_VM_FOLDER:       {{vcenter-vm-folder}}
-      BOSH_VSPHERE_VCENTER_TEMPLATE_FOLDER: {{vcenter-template-folder}}
-      BOSH_VSPHERE_VCENTER_DISK_PATH:       {{vcenter-disk-path}}
-      BOSH_VSPHERE_VCENTER_RP:              {{vcenter-rp}}
-      SSLIP_IO_KEY:                         {{sslip_io_key}}
+      BOSH_CLIENT:                          ((stemcell-test-director-username))
+      BOSH_CLIENT_SECRET:                   ((stemcell-test-director-password))
+      BOSH_VSPHERE_VCENTER:                 ((vcenter-ip))
+      BOSH_VSPHERE_VCENTER_USER:            ((vcenter-user))
+      BOSH_VSPHERE_VCENTER_PASSWORD:        ((vcenter-password))
+      BOSH_VSPHERE_VERSION:                 ((vsphere-version))
+      BOSH_VSPHERE_VCENTER_DC:              ((vcenter-dc))
+      BOSH_VSPHERE_VCENTER_CLUSTER:         ((vcenter-cluster))
+      BOSH_VSPHERE_VCENTER_DATASTORE:       ((vcenter-datastore))
+      BOSH_VSPHERE_VCENTER_VLAN:            ((vcenter-vlan))
+      BOSH_VSPHERE_VCENTER_VM_FOLDER:       ((vcenter-vm-folder))
+      BOSH_VSPHERE_VCENTER_TEMPLATE_FOLDER: ((vcenter-template-folder))
+      BOSH_VSPHERE_VCENTER_DISK_PATH:       ((vcenter-disk-path))
+      BOSH_VSPHERE_VCENTER_RP:              ((vcenter-rp))
+      SSLIP_IO_KEY:                         ((sslip_io_key))
 
 
   - &deploy-director
@@ -86,9 +86,9 @@ shared:
     tags: [vsphere-v6.5]
     file: pipelines/vsphere/tasks/prepare-bats.yml
     params: &prepare-bats-params
-      BAT_VCAP_PASSWORD:      {{bat-vcap-password}}
-      BOSH_CLIENT:            {{stemcell-test-director-username}}
-      BOSH_CLIENT_SECRET:     {{stemcell-test-director-password}}
+      BAT_VCAP_PASSWORD:      ((bat-vcap-password))
+      BOSH_CLIENT:            ((stemcell-test-director-username))
+      BOSH_CLIENT_SECRET:     ((stemcell-test-director-password))
 
   - &run-bats
     task: run-bats
@@ -225,20 +225,20 @@ jobs:
           input_mapping:
             stemcell: vsphere-esxi-ubuntu-trusty
           params:
-            BOSH_internal_ip:       {{stemcell-test-director-address}}
-            BOSH_internal_cidr:     {{bosh-director-vcenter-cidr}}
-            BOSH_internal_gw:       {{bosh-director-vcenter-gateway}}
-            BOSH_vcenter_ip:        {{vcenter-ip}}
-            BOSH_vcenter_user:      {{vcenter-user}}
-            BOSH_vcenter_password:  {{vcenter-password}}
-            BOSH_vcenter_dc:        {{vcenter-dc}}
-            BOSH_vcenter_cluster:   {{vcenter-cluster}}
-            BOSH_vcenter_ds:        {{vcenter-datastore}}
-            BOSH_network_name:      {{vcenter-vlan}}
-            BOSH_vcenter_vms:       {{vcenter-vm-folder}}
-            BOSH_vcenter_templates: {{vcenter-template-folder}}
-            BOSH_vcenter_disks:     {{vcenter-disk-path}}
-            BOSH_vcenter_rp:        {{vcenter-rp}}
+            BOSH_internal_ip:       ((stemcell-test-director-address))
+            BOSH_internal_cidr:     ((bosh-director-vcenter-cidr))
+            BOSH_internal_gw:       ((bosh-director-vcenter-gateway))
+            BOSH_vcenter_ip:        ((vcenter-ip))
+            BOSH_vcenter_user:      ((vcenter-user))
+            BOSH_vcenter_password:  ((vcenter-password))
+            BOSH_vcenter_dc:        ((vcenter-dc))
+            BOSH_vcenter_cluster:   ((vcenter-cluster))
+            BOSH_vcenter_ds:        ((vcenter-datastore))
+            BOSH_network_name:      ((vcenter-vlan))
+            BOSH_vcenter_vms:       ((vcenter-vm-folder))
+            BOSH_vcenter_templates: ((vcenter-template-folder))
+            BOSH_vcenter_disks:     ((vcenter-disk-path))
+            BOSH_vcenter_rp:        ((vcenter-rp))
 
         - task: test-stemcell
           tags: [vsphere-v6.5]
@@ -272,10 +272,10 @@ jobs:
       - task: copy-ubuntu-trusty-artifacts
         file: bosh-linux-stemcell-builder/ci/tasks/publish.yml
         params:
-          AWS_ACCESS_KEY_ID: {{stemcell_aws_access_key}}
-          AWS_SECRET_ACCESS_KEY: {{stemcell_aws_secret_key}}
-          CANDIDATE_BUCKET_NAME: {{candidate_stemcell_bucket}}
-          PUBLISHED_BUCKET_NAME: {{published_stemcell_bucket}}
+          AWS_ACCESS_KEY_ID: ((stemcell_aws_access_key))
+          AWS_SECRET_ACCESS_KEY: ((stemcell_aws_secret_key))
+          CANDIDATE_BUCKET_NAME: ((candidate_stemcell_bucket))
+          PUBLISHED_BUCKET_NAME: ((published_stemcell_bucket))
           OS_NAME: ubuntu
           OS_VERSION: trusty
           COPY_KEYS: |
@@ -579,7 +579,7 @@ resources:
   - name: bosh-src
     type: git
     source:
-      uri: {{bosh_src_url}}
+      uri: ((bosh_src_url))
       branch: 3363.x
       paths:
         - "src/bosh-stemcell"
@@ -591,16 +591,16 @@ resources:
     source:
       uri: git@github.com:bosh-io/stemcells-core-index.git
       branch: master
-      private_key: {{boshio_stemcells_index_key}}
+      private_key: ((boshio_stemcells_index_key))
 
   - name: version
     type: semver
     source:
       driver: s3
       key: bosh-stemcell/version-3363.x
-      bucket: {{candidate_stemcell_bucket}}
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      bucket: ((candidate_stemcell_bucket))
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   - name: syslog-release
     type: bosh-io-release
@@ -624,10 +624,10 @@ resources:
   - name: warden-boshlite-ubuntu-trusty
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: warden/bosh-stemcell-(.+)-warden-boshlite-ubuntu-trusty-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # AWS
@@ -636,10 +636,10 @@ resources:
   - name: aws-xen-hvm-ubuntu-trusty
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: aws/bosh-stemcell-(.+)-aws-xen-hvm-ubuntu-trusty-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # Azure
@@ -648,10 +648,10 @@ resources:
   - name: azure-hyperv-ubuntu-trusty
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: azure/bosh-stemcell-(.+)-azure-hyperv-ubuntu-trusty-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # Google
@@ -660,10 +660,10 @@ resources:
   - name: google-kvm-ubuntu-trusty
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: google/bosh-stemcell-(.+)-google-kvm-ubuntu-trusty-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # OpenStack
@@ -672,18 +672,18 @@ resources:
   - name: openstack-kvm-ubuntu-trusty
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-trusty-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   - name: openstack-kvm-ubuntu-trusty-raw
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: openstack/bosh-stemcell-(.+)-openstack-kvm-ubuntu-trusty-go_agent-raw.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # vSphere
@@ -692,10 +692,10 @@ resources:
   - name: vsphere-esxi-ubuntu-trusty
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: vsphere/bosh-stemcell-(.+)-vsphere-esxi-ubuntu-trusty-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # vCloud
@@ -704,10 +704,10 @@ resources:
   - name: vcloud-esxi-ubuntu-trusty
     type: s3
     source:
-      bucket: {{candidate_stemcell_bucket}}
+      bucket: ((candidate_stemcell_bucket))
       regexp: vcloud/bosh-stemcell-(.+)-vcloud-esxi-ubuntu-trusty-go_agent.tgz
-      access_key_id: {{stemcell_aws_access_key}}
-      secret_access_key: {{stemcell_aws_secret_key}}
+      access_key_id: ((stemcell_aws_access_key))
+      secret_access_key: ((stemcell_aws_secret_key))
 
   #
   # Test Stemcells
@@ -722,9 +722,9 @@ resources:
   - name: bosh-src-push
     type: git
     source:
-      uri: {{bosh_src_push_url}}
+      uri: ((bosh_src_push_url))
       branch: 3363.x
-      private_key: {{bosh_src_key}}
+      private_key: ((bosh_src_key))
 
   - name: bosh-deployment
     type: git
@@ -762,7 +762,7 @@ resources:
       pool: vsphere
       uri: git@github.com:pivotal-cf-experimental/bats-concourse-pool.git
       branch: master
-      private_key: {{github_deployment_key__bosh-cpi-environments}}
+      private_key: ((github_deployment_key__bosh-cpi-environments))
 
   #
   # ubuntu-trusty
@@ -771,10 +771,10 @@ resources:
   - name: ubuntu-trusty-tarball
     type: s3
     source:
-      bucket: {{osimage_bucket}}
+      bucket: ((osimage_bucket))
       versioned_file: bosh-ubuntu-trusty-os-image.tgz
-      access_key_id: {{osimage_aws_access_key}}
-      secret_access_key: {{osimage_aws_secret_key}}
+      access_key_id: ((osimage_aws_access_key))
+      secret_access_key: ((osimage_aws_secret_key))
 
   #
   # centos-7
@@ -783,10 +783,10 @@ resources:
   - name: centos-7-tarball
     type: s3
     source:
-      bucket: {{osimage_bucket}}
+      bucket: ((osimage_bucket))
       versioned_file: bosh-centos-7-os-image.tgz
-      access_key_id: {{osimage_aws_access_key}}
-      secret_access_key: {{osimage_aws_secret_key}}
+      access_key_id: ((osimage_aws_access_key))
+      secret_access_key: ((osimage_aws_secret_key))
 
   - name: every-2-weeks-on-monday
     type: time
