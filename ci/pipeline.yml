@@ -154,6 +154,7 @@ jobs:
         params:
           OPERATING_SYSTEM_NAME:      ubuntu
           OPERATING_SYSTEM_VERSION:   trusty
+          STEMCELL_BUCKET:            ((published_stemcell_bucket))
       - put: ubuntu-trusty-tarball
         params:
           file: os-image/ubuntu-trusty.tgz
@@ -589,9 +590,9 @@ resources:
   - name: stemcells-index
     type: git
     source:
-      uri: git@github.com:bosh-io/stemcells-core-index.git
+      uri: ((stemcells_index_uri))
       branch: master
-      private_key: ((boshio_stemcells_index_key))
+      private_key: ((stemcells_index_private_key))
 
   - name: version
     type: semver

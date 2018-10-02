@@ -78,14 +78,14 @@ if [ -e bosh-src/src/tmp/*-raw.tgz ] ; then
   mv bosh-src/src/tmp/*-raw.tgz "stemcell/${raw_stemcell_filename}"
 
   meta4 import-file --metalink="$meta4_path" --version="$CANDIDATE_BUILD_NUMBER" "stemcell/${raw_stemcell_filename}"
-  meta4 file-set-url --metalink="$meta4_path" --file="${raw_stemcell_filename}" "https://s3.amazonaws.com/bosh-core-stemcells/${IAAS}/${raw_stemcell_filename}"
+  meta4 file-set-url --metalink="$meta4_path" --file="${raw_stemcell_filename}" "https://s3.amazonaws.com/${STEMCELL_BUCKET}/${IAAS}/${raw_stemcell_filename}"
 fi
 
 stemcell_filename="${stemcell_name}.tgz"
 mv "bosh-src/src/tmp/${stemcell_filename}" "stemcell/${stemcell_filename}"
 
 meta4 import-file --metalink="$meta4_path" --version="$CANDIDATE_BUILD_NUMBER" "stemcell/${stemcell_filename}"
-meta4 file-set-url --metalink="$meta4_path" --file="${stemcell_filename}" "https://s3.amazonaws.com/bosh-core-stemcells/${IAAS}/${stemcell_filename}"
+meta4 file-set-url --metalink="$meta4_path" --file="${stemcell_filename}" "https://s3.amazonaws.com/${STEMCELL_BUCKET}/${IAAS}/${stemcell_filename}"
 
 # just in case we need to debug/verify the live results
 cat "$meta4_path"
