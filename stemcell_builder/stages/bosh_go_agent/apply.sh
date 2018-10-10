@@ -28,19 +28,19 @@ cd $assets_dir
 os_type="$(get_os_type)"
 if [ "${os_type}" == "ubuntu" ] && [ "${DISTRIB_CODENAME}" == "trusty" ]; then
   if is_ppc64le; then
-    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.15-linux-ppc64le"
-    echo "1bba9461b095aad2d850327fafde32d329b76fec93f0f7d8e4dbef2a8767b8e6  bosh-agent" | shasum -a 256 -c -
+    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.16-linux-ppc64le"
+    echo "617b1fdf4ee0e025362ea4ccf29348a12366f477e3a9ce088bbc4a3368267d81  bosh-agent" | shasum -a 256 -c -
   else
-    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.15-linux-amd64"
-    echo "1ff92b3421b6bfeaadb361e607e3095abfe8287c1d40e6d516c26aee1391b1c7  bosh-agent" | shasum -a 256 -c -
+    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.16-linux-amd64"
+    echo "71a9c9cbd5554d9edd4faca18fd33ea6c8e47a3fe4861e73e00f2f0385419b79  bosh-agent" | shasum -a 256 -c -
   fi
 else
   if is_ppc64le; then
-    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.15-linux-ppc64le"
-    echo "1bba9461b095aad2d850327fafde32d329b76fec93f0f7d8e4dbef2a8767b8e6  bosh-agent" | shasum -a 256 -c -
+    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.16-linux-ppc64le"
+    echo "617b1fdf4ee0e025362ea4ccf29348a12366f477e3a9ce088bbc4a3368267d81  bosh-agent" | shasum -a 256 -c -
   else
-    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.15-linux-amd64"
-    echo "1ff92b3421b6bfeaadb361e607e3095abfe8287c1d40e6d516c26aee1391b1c7  bosh-agent" | shasum -a 256 -c -
+    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.16-linux-amd64"
+    echo "71a9c9cbd5554d9edd4faca18fd33ea6c8e47a3fe4861e73e00f2f0385419b79  bosh-agent" | shasum -a 256 -c -
   fi
 fi
 
