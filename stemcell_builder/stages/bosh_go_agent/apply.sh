@@ -24,12 +24,24 @@ ln -s /etc/sv/monit /etc/service/monit
 # Alerts for monit config
 cp -a $assets_dir/alerts.monitrc $chroot/var/vcap/monit/alerts.monitrc
 cd $assets_dir
-if is_ppc64le; then
-  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.12-linux-ppc64le"
-  echo "48ac25ae4fb54291a0c0ef9680bf4ba7a82cf664dc7cd47f32eee179de886568  bosh-agent" | shasum -a 256 -c -
+
+os_type="$(get_os_type)"
+if [ "${os_type}" == "ubuntu" ] && [ "${DISTRIB_CODENAME}" == "trusty" ]; then
+  if is_ppc64le; then
+    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.15-linux-ppc64le"
+    echo "1bba9461b095aad2d850327fafde32d329b76fec93f0f7d8e4dbef2a8767b8e6  bosh-agent" | shasum -a 256 -c -
+  else
+    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.15-linux-amd64"
+    echo "1ff92b3421b6bfeaadb361e607e3095abfe8287c1d40e6d516c26aee1391b1c7  bosh-agent" | shasum -a 256 -c -
+  fi
 else
-  curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.12-linux-amd64"
-  echo "3416a4408bf56695a2cc61b2bc1750b9d03300c27c8a90dec9324fd32b004ba7  bosh-agent" | shasum -a 256 -c -
+  if is_ppc64le; then
+    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.15-linux-ppc64le"
+    echo "1bba9461b095aad2d850327fafde32d329b76fec93f0f7d8e4dbef2a8767b8e6  bosh-agent" | shasum -a 256 -c -
+  else
+    curl -L -o bosh-agent "https://s3.amazonaws.com/bosh-toronto-bag/bosh-registry-removal/bosh-agent/bosh-agent-2.67.15-linux-amd64"
+    echo "1ff92b3421b6bfeaadb361e607e3095abfe8287c1d40e6d516c26aee1391b1c7  bosh-agent" | shasum -a 256 -c -
+  fi
 fi
 
 mv bosh-agent $chroot/var/vcap/bosh/bin/
