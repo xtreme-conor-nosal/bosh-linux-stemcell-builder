@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metalink xmlns="urn:ietf:params:xml:ns:metalink">
   <file name="bosh-ubuntu-xenial-os-image.tgz">
-    <hash type="md5">151809ecf27a76a9ba59643460505f0d</hash>
-    <hash type="sha-1">977263498009f852b372b32817a2ca12a825ee8e</hash>
-    <hash type="sha-256">ecf94c7f36a18db72111880f2581230b05e83b8edbf2d2b4503dfaf94481d2e6</hash>
-    <hash type="sha-512">27de729e63565653b67513e7790e31f4dc58d04f79462c5b050632016aa7dae2268348bc1f788290e9645708cf53b2a6e08eff4e79714eca314559c116b112b4</hash>
-    <size>501960827</size>
-    <url>https://s3.amazonaws.com/bosh-os-images/bosh-ubuntu-xenial-os-image.tgz?versionId=6jgoCNsC8taOQvJdJnC3lTGm4b0Hveqm</url>
+    <hash type="md5">512593b22883ef7ba870c4ac01d07d2b</hash>
+    <hash type="sha-1">b49d236181928019a7518d804b360f3036a720b5</hash>
+    <hash type="sha-256">76ebef27e9b0c07f793bd214b00c65c2b1a88c8175a51a42f5a552f5b76ba4cc</hash>
+    <hash type="sha-512">06ef98b8b9add32855cfd50f7ce947ff98b7fbe8e28ef637dde76383662cb098a24211cb95105872c1432ace0f7a91ad32f759266b0286ff99f8e75ebbf192ba</hash>
+    <size>501982893</size>
+    <url>https://s3.amazonaws.com/pci-stemcell-os-image/bosh-ubuntu-xenial-os-image.tgz?versionId=5wl8eKNglTZL5nILiABReVgb6AJSQmOw</url>
   </file>
   <generator>metalink.dpb587.github.io/0.0.0</generator>
 </metalink>
